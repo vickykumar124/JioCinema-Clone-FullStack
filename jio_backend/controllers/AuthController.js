@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const UserModel = require("../model/UserModel");
+const UserModel =require("../Model/UserModel")
 const emailSender = require("../services/emailServices");
 const jwt = require("jsonwebtoken");
 const promisify = require("util").promisify;
