@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import BannerSection from "@/components/section/BannerSection";
 import CategoriesSection from "@/components/section/CategoriesSection";
 import JumperSection from "@/components/section/Jumper";
@@ -16,10 +18,7 @@ export default async function Home() {
     topRated =
       topRatedResp?.data?.response?.results || [];
   } catch (err) {
-    console.log(
-      "Top Rated Error:",
-      err?.response?.status || err.message
-    );
+    console.log("Top Rated Error:", err?.message);
   }
 
   try {
@@ -29,10 +28,7 @@ export default async function Home() {
     popular =
       popularResp?.data?.response?.results || [];
   } catch (err) {
-    console.log(
-      "Popular Error:",
-      err?.response?.status || err.message
-    );
+    console.log("Popular Error:", err?.message);
   }
 
   try {
@@ -42,10 +38,7 @@ export default async function Home() {
     upcoming =
       upcomingResp?.data?.response?.results || [];
   } catch (err) {
-    console.log(
-      "Upcoming Error:",
-      err?.response?.status || err.message
-    );
+    console.log("Upcoming Error:", err?.message);
   }
 
   try {
@@ -55,25 +48,13 @@ export default async function Home() {
     bannerData =
       bannerResp?.data?.response?.results || [];
   } catch (err) {
-    console.log(
-      "Banner Error:",
-      err?.response?.status || err.message
-    );
+    console.log("Banner Error:", err?.message);
   }
 
   const jumperList = [
-    {
-      label: "Top Rated",
-      href: "top-rated",
-    },
-    {
-      label: "Popular",
-      href: "popular",
-    },
-    {
-      label: "Upcoming",
-      href: "upcoming",
-    },
+    { label: "Top Rated", href: "top-rated" },
+    { label: "Popular", href: "popular" },
+    { label: "Upcoming", href: "upcoming" },
   ];
 
   return (
