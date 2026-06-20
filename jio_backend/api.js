@@ -27,14 +27,26 @@ app.use(morgan("dev"));
 // app.use(mongoSanatize());
 
 app.use(helmet());
-const corsConfig = {
-    origin: true,
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://jio-cinema-clone-full-stack-2aeh.vercel.app"
+    ],
     credentials: true,
-};
-app.use(cors(corsConfig));
-// app.options("*", cors(corsConfig));
-app.options(/.*/, cors(corsConfig));
+  })
+);
 
+app.options(
+  /.*/,
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://jio-cinema-clone-full-stack-2aeh.vercel.app"
+    ],
+    credentials: true,
+  })
+);
 
 app.use(
   "/videos",
