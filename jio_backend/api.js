@@ -29,10 +29,17 @@ app.use(morgan("dev"));
 app.use(helmet());
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://jio-cinema-clone-full-stack-2aeh.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        origin === "http://localhost:3000" ||
+        origin.endsWith(".vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -40,14 +47,20 @@ app.use(
 app.options(
   /.*/,
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://jio-cinema-clone-full-stack-2aeh.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        origin === "http://localhost:3000" ||
+        origin.endsWith(".vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
-
 app.use(
   "/videos",
   express.static(path.join(__dirname, "videos"))
