@@ -1,4 +1,2 @@
 jio_backend/node_modules/
-jio_backend/videos/
-*.mp4
 .env
