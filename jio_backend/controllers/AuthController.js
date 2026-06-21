@@ -293,10 +293,11 @@ async function loginHandler(req, res) {
         const authToken = await promisifiedJWTSign({ id: user["_id"] }, process.env.JWT_SECRET_KEY);
         // // token -> cookies
         res.cookie("jwt", authToken, {
-            maxAge: 1000 * 60 * 60 * 24,
-            secure:false,
-            httpOnly: true, // it can only be accessed by the server
-        })
+         maxAge: 1000 * 60 * 60 * 24,
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+});
         // // res send 
         res.status(200).json({
             message: "login successfully",
@@ -350,18 +351,18 @@ const protectRouteMiddleWare = async (req, res, next) => {
     });
   }
 };
-const logoutController = function (req, res) {
-    res.cookie("jwt", "", {
-        // how much time
-        maxAge:0,
-        httpOnly: true,
-        secure: true,
-    });
+const logoutController = (req, res) => {
+  res.cookie("jwt", "", {
+    maxAge: 0,
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
 
-    res.status(200).json({
-        status: "success",
-        message: "user logged out ",
-    });
+  return res.status(200).json({
+    status: "success",
+    message: "User logged out successfully",
+  });
 };
 module.exports = {
     forgetPasswordHandler,

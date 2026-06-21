@@ -59,9 +59,10 @@ const getUserWishlist = async (req, res) => {
 
 const addToWishlist = async (req, res) => {
   try {
-    console.log("========== WISHLIST ==========");
-    console.log("userId:", req.userId);
-    console.log("body:", req.body);
+      console.log("========== WISHLIST ==========");
+      console.log("userId:", req.userId);
+      console.log("body:", req.body);
+      console.log("BODY RECEIVED:", req.body);
 
     if (!req.userId) {
       return res.status(401).json({
