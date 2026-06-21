@@ -318,26 +318,37 @@ async function loginHandler(req, res) {
 const otpGenerator = function () {
     return Math.floor(100000 + Math.random() * 900000);
 }
-const protectRouteMiddleWare = async function (req, res, next) {
-    try {
-        let jwttoken = req.cookies.jwt;
-        if (!jwttoken) throw new Error("UnAuthorized!");
+const protectRouteMiddleWare = async (req, res, next) => {
+  try {
+    console.log("Cookies:", req.cookies);
 
-        let decryptedToken = await promisifiedJWTVerify(jwttoken, JWT_SECRET_KEY);
+    const jwttoken = req.cookies?.jwt;
 
-        if (decryptedToken) {
-            let userId = decryptedToken.id;
-            // adding the userId to the req object
-            req.userId = userId;
-            console.log("authenticated");
-            next();
-        }
-    } catch (err) {
-        res.status(500).json({
-            message: err.message,
-            status: "failure",
-        });
+    if (!jwttoken) {
+      return res.status(401).json({
+        status: "failure",
+        message: "No token found",
+      });
     }
+
+    const decryptedToken = await promisifiedJWTVerify(
+      jwttoken,
+      process.env.JWT_SECRET_KEY
+    );
+
+    req.userId = decryptedToken.id;
+
+    console.log("authenticated:", req.userId);
+
+    next();
+  } catch (err) {
+    console.error("AUTH ERROR:", err);
+
+    return res.status(401).json({
+      status: "failure",
+      message: err.message,
+    });
+  }
 };
 const logoutController = function (req, res) {
     res.cookie("jwt", "", {

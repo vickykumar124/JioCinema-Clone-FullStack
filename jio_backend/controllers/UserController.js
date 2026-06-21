@@ -2,7 +2,7 @@ const UserModel = require("../Model/UserModel");
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.userId);
+    const user = await UserModel.findById(req.userId).lean();
 
     if (!user) {
       return res.status(404).json({
@@ -19,7 +19,7 @@ const getCurrentUser = async (req, res) => {
         email: user.email,
         createdAt: user.createdAt,
         wishlist: user.wishlist || [],
-        isPremium: user.isPremium,
+        isPremium: user.isPremium || false,
       },
     });
   } catch (error) {
@@ -34,7 +34,7 @@ const getCurrentUser = async (req, res) => {
 
 const getUserWishlist = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.userId);
+    const user = await UserModel.findById(req.userId).lean();
 
     if (!user) {
       return res.status(404).json({
@@ -61,9 +61,7 @@ const addToWishlist = async (req, res) => {
   try {
     console.log("========== WISHLIST ==========");
     console.log("userId:", req.userId);
-    console.log("body:", JSON.stringify(req.body, null, 2));
-
-    const { id, poster_path, name, media_type } = req.body;
+    console.log("body:", req.body);
 
     if (!req.userId) {
       return res.status(401).json({
@@ -71,6 +69,8 @@ const addToWishlist = async (req, res) => {
         message: "Unauthorized",
       });
     }
+
+    const { id, poster_path, name, media_type } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -92,21 +92,21 @@ const addToWishlist = async (req, res) => {
       user.wishlist = [];
     }
 
-    const alreadyExists = user.wishlist.some(
+    const exists = user.wishlist.find(
       (item) => String(item.id) === String(id)
     );
 
-    if (alreadyExists) {
+    if (exists) {
       return res.status(400).json({
         status: "failure",
-        message: "Item already in wishlist",
+        message: "Already in wishlist",
       });
     }
 
     user.wishlist.push({
       id: String(id),
-      name: name || "Untitled",
       poster_path: poster_path || "",
+      name: name || "Untitled",
       media_type: media_type || "movie",
     });
 
