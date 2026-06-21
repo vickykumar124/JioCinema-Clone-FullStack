@@ -59,10 +59,9 @@ const getUserWishlist = async (req, res) => {
 
 const addToWishlist = async (req, res) => {
   try {
-      console.log("========== WISHLIST ==========");
-      console.log("userId:", req.userId);
-      console.log("body:", req.body);
-      console.log("BODY RECEIVED:", req.body);
+    console.log("========== WISHLIST ==========");
+    console.log("userId:", req.userId);
+    console.log("body:", req.body);
 
     if (!req.userId) {
       return res.status(401).json({
@@ -89,11 +88,9 @@ const addToWishlist = async (req, res) => {
       });
     }
 
-    if (!Array.isArray(user.wishlist)) {
-      user.wishlist = [];
-    }
+    const wishlist = user.wishlist || [];
 
-    const exists = user.wishlist.find(
+    const exists = wishlist.some(
       (item) => String(item.id) === String(id)
     );
 
@@ -104,19 +101,27 @@ const addToWishlist = async (req, res) => {
       });
     }
 
-    user.wishlist.push({
-      id: String(id),
-      poster_path: poster_path || "",
-      name: name || "Untitled",
-      media_type: media_type || "movie",
-    });
-
-    await user.save();
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.userId,
+      {
+        $push: {
+          wishlist: {
+            id: String(id),
+            poster_path: poster_path || "",
+            name: name || "Untitled",
+            media_type: media_type || "movie",
+          },
+        },
+      },
+      {
+        new: true,
+      }
+    );
 
     return res.status(200).json({
       status: "success",
       message: "Added to wishlist",
-      data: user.wishlist,
+      data: updatedUser.wishlist,
     });
   } catch (error) {
     console.error("Wishlist Error:", error);
