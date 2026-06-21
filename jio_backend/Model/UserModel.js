@@ -1,18 +1,22 @@
 const mongoose = require("mongoose");
 
 const wishlistItemSchema = new mongoose.Schema({
-    poster_path: {
-        type: String,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    id: {
-        type: String,
-        required: true,
-    },
+  poster_path: {
+    type: String,
+    default: "",
+  },
+  name: {
+    type: String,
+    default: "Unknown",
+  },
+  id: {
+    type: String,
+    required: true,
+  },
+  media_type: {
+    type: String,
+    default: "movie",
+  },
 });
 
 const userSchema = new mongoose.Schema({
