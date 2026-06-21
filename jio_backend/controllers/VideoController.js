@@ -77,30 +77,38 @@ const getVideoStream = async (req, res) => {
 };
 
 const getThumbnail = async (req, res) => {
-    try {
-        const { videoId } = req.query;
-        if (!videoId) {
-            return res.status(400).json({ error: 'Video ID is required' });
-        }
-        const thumbnailPath = path.join(__dirname, '..', 'thumbnails', `${videoId}.jpg`);       
-        if (!fs.existsSync(thumbnailPath)) {
-           await generateThumbnailUtil(videoId)
-        }
+  try {
+    const { videoId } = req.query;
 
-        // Send the thumbnail
-        res.sendFile(thumbnailPath);
+    if (!videoId) {
+      return res.status(400).json({
+        error: "Video ID is required",
+      });
+    }
 
+    const thumbnailPath = path.join(
+      __dirname,
+      "..",
+      "thumbnails",
+      `${videoId}.jpg`
+    );
 
-    } catch (err) {
-         console.error("Thumbnail Error:", err);
-         return res.status(500).json({
-         error: "Failed to generate thumbnail"
+    if (!fs.existsSync(thumbnailPath)) {
+      await generateThumbnailUtil(videoId);
+    }
+
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+
+    return res.sendFile(thumbnailPath);
+  } catch (err) {
+    console.error("Thumbnail Error:", err);
+
+    return res.status(500).json({
+      error: "Failed to generate thumbnail",
     });
-}
-
-    
-}
-
+  }
+};
 
 const generateThumbnailUtil = async (videoId) => {
     try {

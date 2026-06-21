@@ -26,7 +26,14 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 // app.use(mongoSanatize());
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: {
+      policy: "cross-origin",
+    },
+  })
+);
 app.use(
   cors({
     origin: function (origin, callback) {
