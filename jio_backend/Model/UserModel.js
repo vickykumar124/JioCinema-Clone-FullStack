@@ -5,14 +5,17 @@ const wishlistItemSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+
   name: {
     type: String,
-    default: "Unknown",
+    default: "Untitled",
   },
+
   id: {
     type: String,
     required: true,
   },
+
   media_type: {
     type: String,
     default: "movie",
@@ -20,74 +23,66 @@ const wishlistItemSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "name is required"],
+  name: {
+    type: String,
+    required: [true, "name is required"],
+  },
+
+  email: {
+    type: String,
+    required: [true, "email is required"],
+    unique: true,
+  },
+
+  password: {
+    type: String,
+    required: [true, "password is required"],
+    minlength: [6, "password should be at least 6 characters"],
+  },
+
+  confirmPassword: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (value) {
+        return value === this.password;
+      },
+      message: "Passwords do not match",
     },
+  },
 
-    email: {
-        type: String,
-        required: [true, "email is required"],
-        unique: true,
-    },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 
-    password: {
-        type: String,
-        required: [true, "password is required"],
-        minlength: [6, "password should be at least 6 characters"],
-    },
+  role: {
+    type: String,
+    default: "user",
+    enum: ["user", "admin", "feed curator", "moderator"],
+  },
 
-    confirmPassword: {
-        type: String,
-        required: true,
-        validate: {
-            validator: function (value) {
-                return value === this.password;
-            },
-            message: "Passwords do not match",
-        },
-    },
+  otp: String,
 
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
+  otpExpiry: Date,
 
-    role: {
-        type: String,
-        default: "user",
-        enum: ["user", "admin", "feed curator", "moderator"],
-    },
+  isPremium: {
+    type: Boolean,
+    default: false,
+  },
 
-    otp: String,
-
-    otpExpiry: Date,
-
-    isPremium: {
-        type: Boolean,
-        default: false,
-    },
-
-    wishlist: [wishlistItemSchema],
+  wishlist: {
+    type: [wishlistItemSchema],
+    default: [],
+  },
 });
-
-/******** Hooks ********/
 
 userSchema.pre("save", function () {
-    console.log("Pre save was called");
-
-    // confirmPassword DB me save nahi hoga
-    this.confirmPassword = undefined;
+  this.confirmPassword = undefined;
 });
-
-userSchema.post("save", function () {
-    console.log("Post save was called");
-});
-
-/******** Model ********/
 
 const UserModel =
-    mongoose.models.User ||
-    mongoose.model("User", userSchema);
+  mongoose.models.User ||
+  mongoose.model("User", userSchema);
 
 module.exports = UserModel;

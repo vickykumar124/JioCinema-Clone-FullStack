@@ -2,18 +2,17 @@ const UserModel = require("../Model/UserModel");
 
 const getCurrentUser = async (req, res) => {
   try {
-    const userId = req.userId;
-
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(req.userId);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
         status: "failure",
+        message: "User not found",
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
+      status: "success",
       user: {
         _id: user._id,
         name: user.name,
@@ -22,39 +21,38 @@ const getCurrentUser = async (req, res) => {
         wishlist: user.wishlist || [],
         isPremium: user.isPremium,
       },
-      status: "success",
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      message: err.message,
+  } catch (error) {
+    console.error("Get Current User Error:", error);
+
+    return res.status(500).json({
       status: "failure",
+      message: error.message,
     });
   }
 };
 
 const getUserWishlist = async (req, res) => {
   try {
-    const userId = req.userId;
-
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(req.userId);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
         status: "failure",
+        message: "User not found",
       });
     }
 
-    res.status(200).json({
-      data: user.wishlist || [],
+    return res.status(200).json({
       status: "success",
+      data: user.wishlist || [],
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      message: err.message,
+  } catch (error) {
+    console.error("Get Wishlist Error:", error);
+
+    return res.status(500).json({
       status: "failure",
+      message: error.message,
     });
   }
 };
@@ -63,26 +61,30 @@ const addToWishlist = async (req, res) => {
   try {
     console.log("========== WISHLIST ==========");
     console.log("userId:", req.userId);
-    console.log("body:", req.body);
+    console.log("body:", JSON.stringify(req.body, null, 2));
 
-    const userId = req.userId;
     const { id, poster_path, name, media_type } = req.body;
 
-    if (!id) {
-      return res.status(400).json({
-        message: "Movie ID is required",
+    if (!req.userId) {
+      return res.status(401).json({
         status: "failure",
+        message: "Unauthorized",
       });
     }
 
-    const user = await UserModel.findById(userId);
+    if (!id) {
+      return res.status(400).json({
+        status: "failure",
+        message: "Movie ID is required",
+      });
+    }
 
-    console.log("user found:", !!user);
+    const user = await UserModel.findById(req.userId);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
         status: "failure",
+        message: "User not found",
       });
     }
 
@@ -96,38 +98,31 @@ const addToWishlist = async (req, res) => {
 
     if (alreadyExists) {
       return res.status(400).json({
-        message: "Item already in wishlist",
         status: "failure",
+        message: "Item already in wishlist",
       });
     }
 
-    const wishlistItem = {
-      id,
-      name,
-      poster_path,
-      media_type,
-    };
+    user.wishlist.push({
+      id: String(id),
+      name: name || "Untitled",
+      poster_path: poster_path || "",
+      media_type: media_type || "movie",
+    });
 
-    await UserModel.findByIdAndUpdate(
-      userId,
-      {
-        $push: {
-          wishlist: wishlistItem,
-        },
-      },
-      { new: true }
-    );
+    await user.save();
 
     return res.status(200).json({
-      message: "Added to wishlist",
       status: "success",
+      message: "Added to wishlist",
+      data: user.wishlist,
     });
   } catch (error) {
-    console.log("Wishlist Error:", error);
+    console.error("Wishlist Error:", error);
 
     return res.status(500).json({
-      message: error.message,
       status: "failure",
+      message: error.message,
     });
   }
 };
