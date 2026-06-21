@@ -3,32 +3,39 @@ const path = require("path");
 const { spawn } = require("child_process");
 
 const getAllVideos = async (req, res) => {
-    try {
-        const videoDirectory = path.join(__dirname, "..", "videos");
-        const files = fs.readdirSync(videoDirectory);
+  try {
+    const videoDirectory = path.join(__dirname, "..", "videos");
 
-        const mp4Files = files.filter(
-            (file) => path.extname(file).toLowerCase() === ".mp4"
-        );
+    console.log("Video Directory:", videoDirectory);
+    console.log("Exists:", fs.existsSync(videoDirectory));
 
-        const videoList = mp4Files.map((file) => ({
-            id: path.parse(file).name,
-            name: file,
-        }));
-
-        res.status(200).json({
-            status: "success",
-            data: videoList,
-        });
-    } catch (err) {
-        console.error("Error fetching video list:", err);
-        res.status(500).json({
-            status: "error",
-            message: "Failed to fetch video list",
-        });
+    if (!fs.existsSync(videoDirectory)) {
+      return res.status(500).json({
+        status: "error",
+        message: "Videos folder not found",
+      });
     }
-};
 
+    const files = fs.readdirSync(videoDirectory);
+
+    const mp4Files = files.filter(
+      (file) => path.extname(file).toLowerCase() === ".mp4"
+    );
+
+    return res.status(200).json({
+      status: "success",
+      count: mp4Files.length,
+      data: mp4Files,
+    });
+  } catch (err) {
+    console.error("Error fetching video list:", err);
+
+    return res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
+  }
+};
 
 const getVideoStream = async (req, res) => {
     try {
